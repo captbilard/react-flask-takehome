@@ -1,0 +1,30 @@
+version:  '3'
+services:
+  backend:
+    container_name: python-flask
+    build:
+      context: ./
+      dockerfile: ./api/Dockerfile
+    ports:
+      - "3000:3000"
+  web:
+    container_name: reactjs
+    build:
+      context: ./
+      dockerfile: ./web/Dockerfile
+    ports:
+      - "8081:3000"
+  database:
+    platform: linux/amd64
+    image: mysql:5.7
+    container_name: mysql_db
+    restart: unless-stopped
+    ports:
+        - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_USER: user
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
