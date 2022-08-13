@@ -51,16 +51,15 @@ Client
 > Name
 ```
 ### Evaluation Criteria
-* Ease of bringing up the project in development (use Docker)
 * Write the sent messages/mails to a log file(extra bonus if external mail service is implemented)
 * Set Up a scheduling system to handle the process
-* Strong OOP principles
-* Unit Tests for core logic
-* Well documented README.md
-* SQL queries for creating all entities
+* SQL queries for creating all new entities
 * Necessary Python APIs exposed
+* Updated UI to permit new use cases
+* Unit Tests for core logic
+* Strong OOP principles
+* Well documented README.md
 * Demo/Presentation
-
 
 ### Technologies
 * Python/Flask
@@ -68,5 +67,8 @@ Client
 * MySQL
 
 ## Next stage
-Setup the project in this repo
+* Setup the project in this repo
+* Create required scheduling endpoints and associated logic
+* Create notification tasks
+* Update UI to handle new use case 
 
