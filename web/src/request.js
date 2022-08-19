@@ -1,12 +1,6 @@
 
 import axios from 'axios'
 
-let config = {
-    method: 'get',
-    url: 'http://127.0.0.1:4000/companies',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
-};
-
 export async function getAllCompanies(){
     try{
         let value = await axios({
