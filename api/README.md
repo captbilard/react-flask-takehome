@@ -10,7 +10,7 @@ Contains a working boilerplate code for your Flask project:
 ```sh
 $ mkdir Project
 $ cd Project
-$ git clone git@github.com:10hourlabs/python-flask-takehome.git
+$ git clone git@github.com:sweptworks/react-flask-takehome.git
 $ cd python-flask-takehome/api
 $ pip install -r requirements.txt
 $ make db
