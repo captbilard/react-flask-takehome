@@ -1,5 +1,5 @@
 
-from app import db, Company, User
+from app import db, Company, User, Client
 
 db.create_all()
 
@@ -25,6 +25,8 @@ user5 = User(name='Harry Potter', email_address="harry.potter@companyamz.com",
 user6 = User(name='Taylor Pitcher', email_address="taylor.pitcher@companyamz.com",
              availability_status='not available', company=companyAMZ)
 
+client1 = Client(name='Client 1', email_address="client1@email.com")
+client2 = Client(name='Client 2', email_address="client2@email.com")
 
 db.session.add(user1)
 db.session.add(user2)
@@ -32,5 +34,7 @@ db.session.add(user3)
 db.session.add(user4)
 db.session.add(user5)
 db.session.add(user6)
+db.session.add(client1)
+db.session.add(client2)
 
 db.session.commit()

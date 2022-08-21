@@ -4,7 +4,7 @@ import * as request from "./request";
 
 function App() {
   const [companies, setCompanies] = React.useState();
-  const [cleaners, setCleaners] = React.useState();
+  const [cleaners, setCleaners] = React.useState([]);
   const [status, setStatus] = React.useState();
 
   const handleCleanerList = (event) => {
@@ -14,7 +14,27 @@ function App() {
   };
 
   const handleStatus = (event) => {
-    setStatus(event.target.value);
+    const selectedCleaner = cleaners.find(
+      (cleaner) => cleaner.id === +event.target.value
+    );
+    setStatus(selectedCleaner.availability_status);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const fields = Array.from(
+      event.target.querySelectorAll(".form-control")
+    ).reduce((acc, field) => ({ ...acc, [field.name]: field.value }), {});
+    let formData = { ...fields };
+    //    console.log(formData);
+    request
+      .scheduleShift(formData)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   React.useEffect(() => {
@@ -32,7 +52,7 @@ function App() {
         Request a cleaner
       </h1>
       <div className="block p-6 rounded-lg shadow-lg bg-white w-full">
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4">
             <div className="form-group mb-6">
               <input
@@ -41,6 +61,7 @@ function App() {
                 id="exampleInput123"
                 aria-describedby="emailHelp123"
                 placeholder="Client Email Address"
+                name="client_email"
               />
             </div>
             <div className="form-group mb-6">
@@ -63,6 +84,7 @@ function App() {
                 id="exampleInput124"
                 aria-describedby="emailHelp124"
                 placeholder="Select Company"
+                name="company"
                 onChange={handleCleanerList}
               >
                 {companies ? (
@@ -96,6 +118,7 @@ function App() {
               id="exampleInput125"
               onChange={handleStatus}
               onClick={handleStatus}
+              name="user"
             >
               <option disabled={true} value={""}>
                 {" "}
@@ -104,7 +127,7 @@ function App() {
               {cleaners
                 ? cleaners.map(
                     ({ id, name, email_address, availability_status }) => (
-                      <option key={id} value={availability_status}>
+                      <option key={id} value={id}>
                         {name}: {email_address}
                       </option>
                     )
@@ -139,6 +162,7 @@ function App() {
                                     m-0
                                     focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                 placeholder="Select Date"
+                name="date"
               />
             </div>
             <div className="grid grid-cols-2 gap-4 pt-3">
@@ -162,6 +186,7 @@ function App() {
                                         m-0
                                         focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                   placeholder="Select"
+                  name="start_time"
                 />
               </div>
               <div className="">
@@ -182,6 +207,7 @@ function App() {
                                         m-0
                                         focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                   placeholder="Select"
+                  name="end_time"
                 />
               </div>
             </div>
