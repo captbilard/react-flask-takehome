@@ -1,12 +1,14 @@
-
 from celery import Celery
 
-# update to your own broker uri (rabbitMQ)
-app = Celery('hello', broker='amqp://guest@localhost//')
 
-# Run your background tasks here.
+def make_celery(app):
+    celery = Celery(app.import_name)
+    celery.conf.update(app.config["CELERY_CONFIG"])
 
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
 
-@app.task
-def hello():
-    return 'hello world'
+    celery.Task = ContextTask
+    return celery

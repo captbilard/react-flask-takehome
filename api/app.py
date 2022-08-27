@@ -1,9 +1,11 @@
 from sqlalchemy_utils import ChoiceType
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 from flask import Flask, request
 from flask_restx import Resource, fields, Api
 from flask_cors import CORS, cross_origin
 from flask_mail import Mail, Message
+from tasks import make_celery
 
 
 app = Flask(__name__)
@@ -12,8 +14,13 @@ api = Api(app)
 CORS(app, resources={r"*": {"origins": "*"}})
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+app.config.update(
+    CELERY_CONFIG={
+        "broker_url": "amqps://ossstawe:aAKgWlYDCXH6mKFgua1P2CX3sMsoTo_b@chimpanzee.rmq.cloudamqp.com/ossstawe"
+    }
+)
 db = SQLAlchemy(app)
-
+celery = make_celery(app)
 TYPES = [("available", "Available"), ("not available", "Not available")]
 
 ########### Mail Configuration #############
@@ -25,8 +32,8 @@ app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USE_SSL"] = False
 mail = Mail(app)
 
-
-########### Mail Function #############
+########### Mail function #############
+@celery.task
 def send_client_mail(cleaner_name, client_email):
     msg = Message(
         "Cleaner Booking Confirmation",
@@ -38,6 +45,7 @@ def send_client_mail(cleaner_name, client_email):
     return "message sent"
 
 
+@celery.task
 def send_cleaner_mail(cleaner_email, cleaner_name, date_range):
     msg = Message(
         "Schedule Notification",
@@ -183,14 +191,22 @@ class Schedules(Resource):
         client = Client.query.filter_by(email_address=client_email).first()
         date_range = f"{date} {start_time} to {date} {end_time}"
 
-        new_Schedule = Schedule(user=user, client=client, date_range=date_range)
+        try:
+            new_Schedule = Schedule(user=user, client=client, date_range=date_range)
+            db.session.add(new_Schedule)
+            db.session.commit()
+        except exc.IntegrityError:
+            db.session.rollback()
+            return "Internal server error"
 
-        db.session.add(new_Schedule)
-
-        db.session.commit()
-
-        send_client_mail(cleaner_name=user.name, client_email=client.email_address)
-        send_cleaner_mail(cleaner_email=user.email_address, cleaner_name=user.name, date_range=date_range)
+        send_client_mail.delay(
+            cleaner_name=user.name, client_email=client.email_address
+        )
+        send_cleaner_mail.delay(
+            cleaner_email=user.email_address,
+            cleaner_name=user.name,
+            date_range=date_range,
+        )
 
         print("Schedule successfully created")
 

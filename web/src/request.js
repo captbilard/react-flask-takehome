@@ -29,14 +29,7 @@ export async function getCleanersInCompany(company_id) {
 }
 
 export async function scheduleShift(formData) {
-  console.log(formData);
   try {
-    // let value = await axios({
-    //   method: "post",
-    //   url: `${url}/schedule`,
-    //   data: formData,
-    //   headers: { "Content-Type": "multipart/form-data" },
-    // }).catch((error) => console.log(error));
     let value = await axios
       .post(`${url}/schedule`, formData)
       .then((response) => {

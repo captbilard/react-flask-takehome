@@ -1,6 +1,8 @@
 import * as React from "react";
 import "./App.css";
 import * as request from "./request";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const [companies, setCompanies] = React.useState();
@@ -20,21 +22,34 @@ function App() {
     setStatus(selectedCleaner.availability_status);
   };
 
+  const notify = () => {
+    return toast("Booking was successfully created", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const fields = Array.from(
       event.target.querySelectorAll(".form-control")
     ).reduce((acc, field) => ({ ...acc, [field.name]: field.value }), {});
     let formData = { ...fields };
-    //    console.log(formData);
     request
       .scheduleShift(formData)
       .then((response) => {
+        notify();
         console.log(response);
       })
       .catch((error) => {
         console.log(error);
       });
+    event.target.reset();
   };
 
   React.useEffect(() => {
@@ -239,6 +254,7 @@ function App() {
           </button>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 }
